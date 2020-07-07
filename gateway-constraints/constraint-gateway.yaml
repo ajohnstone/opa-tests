@@ -21,14 +21,25 @@ spec:
           msg := sprintf("REVIEW OBJECT: %v", ["blay"])
         }
 
-#        operations = {"CREATE", "UPDATE"}
+
+#        package k8sdenyallgateway
 #
+#        operations = {"CREATE", "UPDATE"}
+#        identical(obj, review) {
+#          obj.metadata.namespace == review.object.metadata.namespace
+#          obj.metadata.name == review.object.metadata.name
+#        }
+#        violation[{"msg": msg}] {
+#          other := data.inventory.namespace[ns][otherapiversion][resourcetype][resourcename].spec.servers[i].hosts
 #          #re_match("^(networking.istio.io)$", input.review.kind.group)
 #          #input.review.kind.kind == "Gateway"
 #          #operations[input.review.operation]
 #
 #          #hosts := input.review.object.spec
 #          #not identical(other, input.review)
+#          msg := sprintf("REVIEW OBJECT: %v", ["blay"])
+#        }
+#
 
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1

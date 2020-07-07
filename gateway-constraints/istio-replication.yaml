@@ -6,6 +6,9 @@ metadata:
 spec:
   sync:
     syncOnly:
+      - group: ""
+        version: "v1"
+        kind: "Namespace"
       - group: "networking.istio.io"
         version: "v1beta1"
         kind: "Gateway"
