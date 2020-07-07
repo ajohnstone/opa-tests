@@ -1,0 +1,42 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8sdenyallgateway
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sDenyAllGateway
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sdenyallgateway
+
+        identical(obj, review) {
+          obj.metadata.namespace == review.object.metadata.namespace
+          obj.metadata.name == review.object.metadata.name
+        }
+        violation[{"msg": msg}] {
+          other := data.inventory.namespace[ns][otherapiversion][resourcetype][resourcename].spec.servers[i].hosts
+          msg := sprintf("REVIEW OBJECT: %v", ["blay"])
+        }
+
+#        operations = {"CREATE", "UPDATE"}
+#
+#          #re_match("^(networking.istio.io)$", input.review.kind.group)
+#          #input.review.kind.kind == "Gateway"
+#          #operations[input.review.operation]
+#
+#          #hosts := input.review.object.spec
+#          #not identical(other, input.review)
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDenyAllGateway
+metadata:
+  name: deny-all-gateways
+spec:
+  match:
+    kinds:
+      - apiGroups: ["networking.istio.io"]
+        kinds: ["Gateway"]
