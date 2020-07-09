@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: gateway-allows
+  name: gateway-same
 spec:
   selector:
     app: my-gateway-controller
@@ -18,7 +18,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: gateway-allows-new
+  name: gateway-same
 spec:
   selector:
     app: my-gateway-controller

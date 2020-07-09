@@ -3,7 +3,7 @@ install:
 	kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
 	kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/demo/basic/templates/k8srequiredlabels_template.yaml
 	kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/demo/basic/constraints/all_ns_must_have_gatekeeper.yaml
-	kubectl apply -f ./istio-replication.yaml
+	kubectl apply -f sync.yaml
 
 	sleep 2
 	kubectl delete ns test-a --ignore-not-found=true;
@@ -16,8 +16,8 @@ gateway:
 	@echo -----
 	kubectl get gateways -A
 	@echo -----
-	kubectl apply -f istio-replication.yaml
-	kubectl apply -f sample.gateway.yaml
+	kubectl apply -f sync.yaml
+	kubectl apply -f same.gateway.yaml
 	kubectl apply -f constraint-gateway.yaml
 	sleep 2
 	@echo -----
@@ -27,4 +27,8 @@ gateway:
 	sed 's/-a/-a/g' gateway.yaml.tpl | kubectl apply -f -
 	echo SAMPLE B
 	sed 's/-a/-b/g' gateway.yaml.tpl | kubectl apply -f -
+
+	@echo -----
+	echo INVALID DUPLICATE HOSTS
+	sed 's/name: gateway-a/name: gateway-dupe/g' gateway.yaml.tpl | kubectl apply -f -
 

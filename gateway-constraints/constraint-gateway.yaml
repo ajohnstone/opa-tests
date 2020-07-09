@@ -12,34 +12,28 @@ spec:
       rego: |
         package k8sdenyallgateway
 
+        operations = {"CREATE", "UPDATE"}
+
         identical(obj, review) {
           obj.metadata.namespace == review.object.metadata.namespace
           obj.metadata.name == review.object.metadata.name
         }
-        violation[{"msg": msg}] {
-          other := data.inventory.namespace[ns][otherapiversion][resourcetype][resourcename].spec.servers[i].hosts
-          msg := sprintf("REVIEW OBJECT: %v", ["blay"])
+
+        contains(other, hosts) {
+          s2 := other.spec.servers[_].hosts[_] == hosts[_]
         }
+        
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Gateway"
+          operations[input.review.operation]
+          re_match("^(networking.istio.io)$", input.review.kind.group)
 
-
-#        package k8sdenyallgateway
-#
-#        operations = {"CREATE", "UPDATE"}
-#        identical(obj, review) {
-#          obj.metadata.namespace == review.object.metadata.namespace
-#          obj.metadata.name == review.object.metadata.name
-#        }
-#        violation[{"msg": msg}] {
-#          other := data.inventory.namespace[ns][otherapiversion][resourcetype][resourcename].spec.servers[i].hosts
-#          #re_match("^(networking.istio.io)$", input.review.kind.group)
-#          #input.review.kind.kind == "Gateway"
-#          #operations[input.review.operation]
-#
-#          #hosts := input.review.object.spec
-#          #not identical(other, input.review)
-#          msg := sprintf("REVIEW OBJECT: %v", ["blay"])
-#        }
-#
+          hosts := input.review.object.spec.servers[_].hosts
+          other := data.inventory.namespace[ns][apiversion]["Gateway"][resourcename]
+          not identical(other, input.review)
+          not contains(other, hosts)
+          msg := sprintf("REVIEW OBJECT: %v", [[input.review.uid,ns,resourcename, hosts]])
+        }
 
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
