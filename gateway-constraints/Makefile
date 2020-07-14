@@ -31,9 +31,11 @@ gateway:
 	sed 's/-a/-a/g' gateway.yaml.tpl | kubectl apply -f -
 	echo SAMPLE B
 	sed 's/-a/-b/g' gateway.yaml.tpl | kubectl apply -f -
+	echo SAMPLE C
+	sed 's/-a/-c/g' gateway.yaml.tpl | kubectl apply -f -
 
 	@echo -----
 	echo INVALID DUPLICATE HOSTS
 	kubectl get gateway -A -o json | jq '.items[].spec.servers[].hosts[]' -r | sort | uniq -c | sort -gr
-	sed 's/name: gateway-a/name: gateway-dupe/g' gateway.yaml.tpl | kubectl apply -f -
+	sed 's/name: gateway-a/name: gateway-dupe/g' gateway.yaml.tpl | kubectl apply -f - || true
 	kubectl get gateway -A -o json | jq '.items[].spec.servers[].hosts[]' -r | sort | uniq -c | sort -gr

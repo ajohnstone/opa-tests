@@ -26,10 +26,10 @@ spec:
 
           hosts := input.review.object.spec.servers[_].hosts
           other := data.inventory.namespace[ns][apiversion]["Gateway"][resourcename]
-          s3 := other.spec.servers[_].hosts
+          otherhosts := other.spec.servers[_].hosts
 
-          hosts[_] == s3[_]
+          hosts[_] == otherhosts[_]
 
           not identical(other, input.review)
-          msg := sprintf("REVIEW OBJECT: %v", [[input.review.uid, ns, resourcename, hosts, s3]])
+          msg := sprintf("Duplicate Gateway host: %v", [[input.review.uid, ns, resourcename, hosts, otherhosts]])
         }
