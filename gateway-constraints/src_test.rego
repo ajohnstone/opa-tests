@@ -3,7 +3,7 @@ package k8sdenyallgateway
 test_no_data {
     input := {"review": review(gateway("my-gateway", "prod", my_rules1, "extensions/v1beta1"), "extensions")}
     results := violation with input as input
-    count(results) == 0
+    count(results) == 1
 }
 
 #test_identical {

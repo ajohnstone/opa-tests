@@ -19,10 +19,6 @@ spec:
           obj.metadata.name == review.object.metadata.name
         }
 
-        contains(other, hosts) {
-          s2 := other.spec.servers[_].hosts[_] == hosts[_]
-        }
-        
         violation[{"msg": msg}] {
           input.review.kind.kind == "Gateway"
           operations[input.review.operation]
@@ -30,18 +26,10 @@ spec:
 
           hosts := input.review.object.spec.servers[_].hosts
           other := data.inventory.namespace[ns][apiversion]["Gateway"][resourcename]
-          not identical(other, input.review)
-          not contains(other, hosts)
-          msg := sprintf("REVIEW OBJECT: %v", [[input.review.uid,ns,resourcename, hosts]])
-        }
+          s3 := other.spec.servers[_].hosts
 
----
-apiVersion: constraints.gatekeeper.sh/v1beta1
-kind: K8sDenyAllGateway
-metadata:
-  name: deny-all-gateways
-spec:
-  match:
-    kinds:
-      - apiGroups: ["networking.istio.io"]
-        kinds: ["Gateway"]
+          hosts[_] == s3[_]
+
+          not identical(other, input.review)
+          msg := sprintf("REVIEW OBJECT: %v", [[input.review.uid, ns, resourcename, hosts, s3]])
+        }

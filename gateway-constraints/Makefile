@@ -10,6 +10,8 @@ install:
 	kubectl create ns test-a;
 
 gateway:
+	kubectl delete pods -n gatekeeper-system --all
+	sleep 5
 	kubectl delete K8sDenyAllGateway --ignore-not-found=true  --all 2>&1 || true
 	kubectl delete gateway -l testing=gateway --ignore-not-found=true
 	kubectl delete gateways.networking.istio.io --all -n default
@@ -19,6 +21,8 @@ gateway:
 	kubectl apply -f sync.yaml
 	kubectl apply -f same.gateway.yaml
 	kubectl apply -f constraint-gateway.yaml
+	sleep 2
+	kubectl apply -f constraint-gateway-i.yaml
 	sleep 2
 	@echo -----
 	kubectl get gateways -A
@@ -30,5 +34,6 @@ gateway:
 
 	@echo -----
 	echo INVALID DUPLICATE HOSTS
+	kubectl get gateway -A -o json | jq '.items[].spec.servers[].hosts[]' -r | sort | uniq -c | sort -gr
 	sed 's/name: gateway-a/name: gateway-dupe/g' gateway.yaml.tpl | kubectl apply -f -
-
+	kubectl get gateway -A -o json | jq '.items[].spec.servers[].hosts[]' -r | sort | uniq -c | sort -gr
